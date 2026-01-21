@@ -5,3 +5,6 @@
 *.key
 *.pem
 *.pfx
+
+
+error.txt

@@ -31,6 +31,7 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
             organization: None,
             org_unit: None,
             key_type: default_key_type,
+            pfx_password: String::new(),
         };
     }
 
@@ -45,20 +46,13 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
             cn: cli.cn.unwrap_or(default_cn),
             sans: cli.sans.unwrap_or(default_sans),
             validity_days: cli.days.unwrap_or(default_days),
-            country: None, // Defaults to None for non-interactive simple/full unless we parse more args (which we don't have yet)
-            // Wait, if user wants to set C/ST/L via CLI arguments, we didn't add those args to Clap yet!
-            // Requirement said: "Hybrid Input... 1. Command Line Params... 2. Interactive".
-            // Implementation Plan only said "Add flags --full --all".
-            // It didn't explicitly say "Add CLI args for Country, State etc".
-            // However, to obtain "Full" mode via CLI arguments, we intuitively should support them.
-            // But the user request specifically asked for interactive flows.
-            // Let's stick to what we have. If non-interactive, those fields will be None unless we add args.
-            // For now, let's keep them None in non-interactive if args aren't there.
+            country: None,
             state: None,
             city: None,
             organization: None,
             org_unit: None,
             key_type: default_key_type,
+            pfx_password: String::new(),
         };
     }
 
@@ -142,6 +136,7 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
         organization,
         org_unit,
         key_type,
+        pfx_password: String::new(),
     }
 }
 
