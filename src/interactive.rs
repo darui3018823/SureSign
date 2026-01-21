@@ -1,7 +1,7 @@
+use crate::cert::{CertOptions, KeyType};
 use crate::cli::Cli;
 use crate::i18n::t;
-use crate::cert::{CertOptions, KeyType};
-use inquire::{Text, Confirm, CustomType, Select};
+use inquire::{Confirm, CustomType, Select, Text};
 use std::process;
 
 pub fn resolve_options(cli: Cli) -> CertOptions {
@@ -41,19 +41,19 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
     // Non-interactive fallback
     // If non-interactive is set, we use provided args or defaults, skipping prompts.
     if cli.non_interactive {
-         return CertOptions {
+        return CertOptions {
             cn: cli.cn.unwrap_or(default_cn),
             sans: cli.sans.unwrap_or(default_sans),
             validity_days: cli.days.unwrap_or(default_days),
             country: None, // Defaults to None for non-interactive simple/full unless we parse more args (which we don't have yet)
-                           // Wait, if user wants to set C/ST/L via CLI arguments, we didn't add those args to Clap yet!
-                           // Requirement said: "Hybrid Input... 1. Command Line Params... 2. Interactive".
-                           // Implementation Plan only said "Add flags --full --all".
-                           // It didn't explicitly say "Add CLI args for Country, State etc".
-                           // However, to obtain "Full" mode via CLI arguments, we intuitively should support them.
-                           // But the user request specifically asked for interactive flows.
-                           // Let's stick to what we have. If non-interactive, those fields will be None unless we add args.
-                           // For now, let's keep them None in non-interactive if args aren't there.
+            // Wait, if user wants to set C/ST/L via CLI arguments, we didn't add those args to Clap yet!
+            // Requirement said: "Hybrid Input... 1. Command Line Params... 2. Interactive".
+            // Implementation Plan only said "Add flags --full --all".
+            // It didn't explicitly say "Add CLI args for Country, State etc".
+            // However, to obtain "Full" mode via CLI arguments, we intuitively should support them.
+            // But the user request specifically asked for interactive flows.
+            // Let's stick to what we have. If non-interactive, those fields will be None unless we add args.
+            // For now, let's keep them None in non-interactive if args aren't there.
             state: None,
             city: None,
             organization: None,
@@ -84,7 +84,8 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
                 .with_default("127.0.0.1")
                 .prompt()
                 .unwrap_or_else(|_| process::exit(0));
-            input.split(',')
+            input
+                .split(',')
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
                 .collect()
@@ -122,7 +123,7 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
         let ans = Select::new(&t("select_key_type"), options)
             .prompt()
             .unwrap_or_else(|_| process::exit(0));
-        
+
         key_type = match ans {
             "RSA" => KeyType::Rsa,
             "ECDSA" => KeyType::Ecdsa,

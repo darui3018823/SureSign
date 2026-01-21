@@ -1,6 +1,6 @@
-use sys_locale::get_locale;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
+use sys_locale::get_locale;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Lang {
@@ -47,7 +47,10 @@ fn get_en(key: &str) -> String {
         "error" => "Error:".to_string(),
         "interactive_mode" => "Entering interactive mode...".to_string(),
         "enter_cn" => "Common Name (CN) e.g., myserver.local:".to_string(),
-        "enter_san" => "Subject Alternative Names (SANs) - comma separated (e.g., 192.168.1.1, dns.local):".to_string(),
+        "enter_san" => {
+            "Subject Alternative Names (SANs) - comma separated (e.g., 192.168.1.1, dns.local):"
+                .to_string()
+        }
         "enter_days" => "Validity days:".to_string(),
         "generating" => "Generating certificate...".to_string(),
         "success" => "Success!".to_string(),
@@ -69,7 +72,9 @@ fn get_ja(key: &str) -> String {
         "error" => "エラー:".to_string(),
         "interactive_mode" => "対話モードを開始します...".to_string(),
         "enter_cn" => "コモンネーム (CN) 例: myserver.local:".to_string(),
-        "enter_san" => "サブジェクト代替名 (SANs) - カンマ区切り (例: 192.168.1.1, dns.local):".to_string(),
+        "enter_san" => {
+            "サブジェクト代替名 (SANs) - カンマ区切り (例: 192.168.1.1, dns.local):".to_string()
+        }
         "enter_days" => "有効期限 (日数):".to_string(),
         "generating" => "証明書を生成中...".to_string(),
         "success" => "成功！".to_string(),

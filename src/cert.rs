@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use rcgen::{Certificate, CertificateParams, SanType, KeyPair, DnType};
+use rcgen::{Certificate, CertificateParams, DnType, KeyPair, SanType};
 use std::net::IpAddr;
 use std::str::FromStr;
 use time::{Duration, OffsetDateTime}; // rcgen uses time crate
@@ -34,7 +34,7 @@ pub struct GeneratedCert {
 
 pub fn generate_cert(opt: CertOptions) -> Result<GeneratedCert> {
     let mut params = CertificateParams::new(vec![opt.cn.clone()]);
-    
+
     // Set validity
     let now = OffsetDateTime::now_utc();
     let end = now + Duration::days(opt.validity_days);
@@ -55,7 +55,9 @@ pub fn generate_cert(opt: CertOptions) -> Result<GeneratedCert> {
         params.distinguished_name.push(DnType::CountryName, c);
     }
     if let Some(st) = opt.state {
-        params.distinguished_name.push(DnType::StateOrProvinceName, st);
+        params
+            .distinguished_name
+            .push(DnType::StateOrProvinceName, st);
     }
     if let Some(l) = opt.city {
         params.distinguished_name.push(DnType::LocalityName, l);
@@ -64,7 +66,9 @@ pub fn generate_cert(opt: CertOptions) -> Result<GeneratedCert> {
         params.distinguished_name.push(DnType::OrganizationName, o);
     }
     if let Some(ou) = opt.org_unit {
-        params.distinguished_name.push(DnType::OrganizationalUnitName, ou);
+        params
+            .distinguished_name
+            .push(DnType::OrganizationalUnitName, ou);
     }
 
     // Set Key Algorithm (All Mode)
@@ -85,15 +89,9 @@ pub fn generate_cert(opt: CertOptions) -> Result<GeneratedCert> {
     let cert_der = cert.serialize_der()?;
     let key_der = cert.serialize_private_key_der();
 
-    let pfx = p12::PFX::new(
-        &cert_der,
-        &key_der,
-        None,
-        "",
-        &opt.cn,
-    )
-    .ok_or_else(|| anyhow::anyhow!("Failed to generate PFX struct"))?;
-    
+    let pfx = p12::PFX::new(&cert_der, &key_der, None, "", &opt.cn)
+        .ok_or_else(|| anyhow::anyhow!("Failed to generate PFX struct"))?;
+
     let pfx_bytes = pfx.to_der();
 
     Ok(GeneratedCert {
