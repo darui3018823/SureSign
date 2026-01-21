@@ -133,12 +133,12 @@ jobs:
         run: |
           mkdir -p release
           cd artifacts
-          for dir in */; dSureSign.exe" ]; then
+          for dir in */; do
+            artifact_name="${dir%/}"
+            if [ -f "$dir/SureSign.exe" ]; then
               cp "$dir/SureSign.exe" "../release/${artifact_name}.exe"
             elif [ -f "$dir/SureSign" ]; then
-              cp "$dir/SureSign.exe" "../release/${artifact_name}"
-            elif [ -f "$dir/downloader" ]; then
-              cp "$dir/downloader" "../release/${artifact_name}"
+              cp "$dir/SureSign" "../release/${artifact_name}"
               chmod +x "../release/${artifact_name}"
             fi
           done
