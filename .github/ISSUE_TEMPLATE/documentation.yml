@@ -1,0 +1,47 @@
+name: Documentation Improvement
+description: Help us improve documentation
+labels: ["documentation"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve our documentation!
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Which file or section needs improvement?
+      placeholder: "e.g., README.md - Installation section"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue
+      description: What's the problem with the current documentation?
+      placeholder: |
+        - Missing information about...
+        - Unclear explanation of...
+        - Outdated...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: "Suggest how to improve the documentation..."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: agree
+    attributes:
+      label: Acknowledgment
+      options:
+        - label: I have checked if this issue already exists
+          required: true

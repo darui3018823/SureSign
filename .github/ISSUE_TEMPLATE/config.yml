@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Issues
+    url: https://github.com/darui3018823/SureSign/security/advisories
+    about: Please report security vulnerabilities via security advisory
+  - name: General Questions
+    url: https://github.com/darui3018823/SureSign/discussions
+    about: Use GitHub Discussions for questions or general support
