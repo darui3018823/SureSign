@@ -7,49 +7,109 @@ use crate::i18n::t;
 use anyhow::{Context, Result};
 use console::Style;
 use std::fs;
+use std::io::{self, Write};
 use std::path::Path;
 
 fn main() -> Result<()> {
-    // Force init of i18n (it's lazy but good to ensure it detects early if needed)
-    // Actually our lazy_static handles it on first call.
-
     let args = cli::parse();
+
+    // Store verbose/quiet flags before moving args
+    let verbose = args.verbose;
+    let quiet = args.quiet;
+    let yes = args.yes;
+
+    // Extract output settings before moving args to resolve_options
+    let output_dir = args.output.clone();
+    let file_name = args.name.clone().unwrap_or_else(|| "server".to_string());
+
     let opts = interactive::resolve_options(args);
 
-    println!("{}", t("generating"));
+    if !quiet {
+        println!("{}", t("generating"));
+    }
+
+    if verbose {
+        println!("  CN: {}", opts.cn);
+        println!("  SANs: {:?}", opts.sans);
+        println!("  Days: {}", opts.validity_days);
+        println!("  Key Type: {:?}", opts.key_type);
+        if opts.pfx_password.is_empty() {
+            println!("  PFX Password: (none)");
+        } else {
+            println!("  PFX Password: (set)");
+        }
+    }
 
     let generated = cert::generate_cert(opts).context("Failed to generate certificate")?;
 
-    // Save files
-    let output_dir = "."; // Current directory or configurable? Req says "save path prominently"
+    // Determine output directory
+    let output_path = output_dir.unwrap_or_else(|| Path::new(".").to_path_buf());
 
-    let key_path = Path::new(output_dir).join("server.key");
-    let crt_path = Path::new(output_dir).join("server.crt");
-    let pem_path = Path::new(output_dir).join("server.pem"); // Bundle
-    let pfx_path = Path::new(output_dir).join("server.pfx");
+    // Create output directory if it doesn't exist
+    if !output_path.exists() {
+        fs::create_dir_all(&output_path).context("Failed to create output directory")?;
+    }
 
-    fs::write(&key_path, &generated.key_pem).context("Failed to write server.key")?;
-    fs::write(&crt_path, &generated.cert_pem).context("Failed to write server.crt")?;
+    let key_path = output_path.join(format!("{}.key", file_name));
+    let crt_path = output_path.join(format!("{}.crt", file_name));
+    let pem_path = output_path.join(format!("{}.pem", file_name));
+    let pfx_path = output_path.join(format!("{}.pfx", file_name));
 
-    // server.pem = cert + key
+    // Check for existing files and prompt for overwrite
+    let paths = [&key_path, &crt_path, &pem_path, &pfx_path];
+    let existing_files: Vec<_> = paths
+        .iter()
+        .filter(|p| p.exists())
+        .collect();
+
+    if !existing_files.is_empty() && !yes {
+        println!(
+            "{}",
+            Style::new()
+                .yellow()
+                .apply_to(t("files_exist_warning"))
+        );
+        for file in &existing_files {
+            println!("  - {}", file.display());
+        }
+        print!("{} ", t("overwrite_prompt"));
+        io::stdout().flush()?;
+
+        let mut input = String::new();
+        io::stdin().read_line(&mut input)?;
+        let input = input.trim().to_lowercase();
+
+        if input != "y" && input != "yes" {
+            println!("{}", t("aborted"));
+            return Ok(());
+        }
+    }
+
+    // Write files
+    fs::write(&key_path, &generated.key_pem).context("Failed to write key file")?;
+    fs::write(&crt_path, &generated.cert_pem).context("Failed to write crt file")?;
+
+    // server.pem = key + cert bundle
     let bundle = format!("{}\n{}", generated.key_pem, generated.cert_pem);
-    fs::write(&pem_path, bundle).context("Failed to write server.pem")?;
+    fs::write(&pem_path, bundle).context("Failed to write pem file")?;
 
-    fs::write(&pfx_path, &generated.pfx).context("Failed to write server.pfx")?;
+    fs::write(&pfx_path, &generated.pfx).context("Failed to write pfx file")?;
 
-    let success_style = Style::new().green().bold();
-    let path_style = Style::new().cyan();
+    if !quiet {
+        let success_style = Style::new().green().bold();
+        let path_style = Style::new().cyan();
 
-    println!("{}", success_style.apply_to(t("success")));
-    println!(
-        "{} {}",
-        t("saved_to"),
-        path_style.apply_to(fs::canonicalize(output_dir)?.display())
-    );
-    println!("  - {}", path_style.apply_to(key_path.display()));
-    println!("  - {}", path_style.apply_to(crt_path.display()));
-    println!("  - {}", path_style.apply_to(pem_path.display()));
-    println!("  - {}", path_style.apply_to(pfx_path.display()));
+        println!("{}", success_style.apply_to(t("success")));
+        println!(
+            "{} {}",
+            t("saved_to"),
+            path_style.apply_to(fs::canonicalize(&output_path)?.display())
+        );
+        println!("  - {}", path_style.apply_to(key_path.display()));
+        println!("  - {}", path_style.apply_to(crt_path.display()));
+        println!("  - {}", path_style.apply_to(pem_path.display()));
+        println!("  - {}", path_style.apply_to(pfx_path.display()));
+    }
 
     Ok(())
 }

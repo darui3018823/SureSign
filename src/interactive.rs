@@ -4,6 +4,16 @@ use crate::i18n::t;
 use inquire::{CustomType, Select, Text};
 use std::process;
 
+/// Parse key type string from CLI to KeyType enum
+fn parse_key_type(s: &str) -> KeyType {
+    match s.to_lowercase().as_str() {
+        "rsa" => KeyType::Rsa,
+        "ecdsa" => KeyType::Ecdsa,
+        "ed25519" => KeyType::Ed25519,
+        _ => KeyType::Ecdsa,
+    }
+}
+
 pub fn resolve_options(cli: Cli) -> CertOptions {
     if cli.cmdlist {
         println!("{}", t("cmdlist_header"));
@@ -11,6 +21,14 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
         println!("--all: Ask for KeyType and all other fields");
         println!("--default_settings: Generate with defaults");
         println!("--non-interactive: Fail on missing args (or use defaults)");
+        println!("--output, -o: Output directory");
+        println!("--name, -n: Output file name (without extension)");
+        println!("--pfx-password: Set PFX password");
+        println!("--country, --state, --city, --org, --org-unit: DN fields");
+        println!("--key-type: Key algorithm (rsa, ecdsa, ed25519)");
+        println!("--verbose, -v: Show verbose output");
+        println!("--quiet, -q: Suppress non-essential output");
+        println!("--config: Path to config file");
         process::exit(0);
     }
 
@@ -19,19 +37,22 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
     let default_days = 365;
     let default_key_type = KeyType::Ecdsa;
 
+    // Parse key_type from CLI if provided
+    let cli_key_type = cli.key_type.as_ref().map(|s| parse_key_type(s));
+
     // Direct return if default_settings is requested
     if cli.default_settings {
         return CertOptions {
             cn: cli.cn.unwrap_or(default_cn),
             sans: cli.sans.unwrap_or(default_sans),
             validity_days: cli.days.unwrap_or(default_days),
-            country: None,
-            state: None,
-            city: None,
-            organization: None,
-            org_unit: None,
-            key_type: default_key_type,
-            pfx_password: String::new(),
+            country: cli.country,
+            state: cli.state,
+            city: cli.city,
+            organization: cli.org,
+            org_unit: cli.org_unit,
+            key_type: cli_key_type.unwrap_or(default_key_type),
+            pfx_password: cli.pfx_password.unwrap_or_default(),
         };
     }
 
@@ -40,26 +61,27 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
     let is_full = cli.full || is_all;
 
     // Non-interactive fallback
-    // If non-interactive is set, we use provided args or defaults, skipping prompts.
     if cli.non_interactive {
         return CertOptions {
             cn: cli.cn.unwrap_or(default_cn),
             sans: cli.sans.unwrap_or(default_sans),
             validity_days: cli.days.unwrap_or(default_days),
-            country: None,
-            state: None,
-            city: None,
-            organization: None,
-            org_unit: None,
-            key_type: default_key_type,
-            pfx_password: String::new(),
+            country: cli.country,
+            state: cli.state,
+            city: cli.city,
+            organization: cli.org,
+            org_unit: cli.org_unit,
+            key_type: cli_key_type.unwrap_or(default_key_type),
+            pfx_password: cli.pfx_password.unwrap_or_default(),
         };
     }
 
     // Interactive Mode
-    println!("{}", t("welcome"));
-    if !is_full && cli.cn.is_none() && cli.sans.is_none() && cli.days.is_none() {
-        println!("{}", t("interactive_mode"));
+    if !cli.quiet {
+        println!("{}", t("welcome"));
+        if !is_full && cli.cn.is_none() && cli.sans.is_none() && cli.days.is_none() {
+            println!("{}", t("interactive_mode"));
+        }
     }
 
     // 1. Basic Fields
@@ -95,36 +117,64 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
             .unwrap_or_else(|_| process::exit(0)),
     };
 
-    // 2. Full Mode Fields (Optional)
-    let mut country = None;
-    let mut state = None;
-    let mut city = None;
-    let mut organization = None;
-    let mut org_unit = None;
+    // 2. Full Mode Fields - use CLI args or prompt
+    let country = if is_full {
+        cli.country.or_else(|| prompt_optional(&t("enter_country")))
+    } else {
+        cli.country
+    };
 
-    if is_full {
-        country = prompt_optional(&t("enter_country"));
-        state = prompt_optional(&t("enter_state"));
-        city = prompt_optional(&t("enter_city"));
-        organization = prompt_optional(&t("enter_org"));
-        org_unit = prompt_optional(&t("enter_org_unit"));
-    }
+    let state = if is_full {
+        cli.state.or_else(|| prompt_optional(&t("enter_state")))
+    } else {
+        cli.state
+    };
 
-    // 3. All Mode Fields
-    let mut key_type = default_key_type;
-    if is_all {
+    let city = if is_full {
+        cli.city.or_else(|| prompt_optional(&t("enter_city")))
+    } else {
+        cli.city
+    };
+
+    let organization = if is_full {
+        cli.org.or_else(|| prompt_optional(&t("enter_org")))
+    } else {
+        cli.org
+    };
+
+    let org_unit = if is_full {
+        cli.org_unit.or_else(|| prompt_optional(&t("enter_org_unit")))
+    } else {
+        cli.org_unit
+    };
+
+    // 3. All Mode Fields - use CLI args or prompt
+    let key_type = if let Some(kt) = cli_key_type {
+        kt
+    } else if is_all {
         let options = vec!["RSA", "ECDSA", "Ed25519"];
         let ans = Select::new(&t("select_key_type"), options)
             .prompt()
             .unwrap_or_else(|_| process::exit(0));
 
-        key_type = match ans {
+        match ans {
             "RSA" => KeyType::Rsa,
             "ECDSA" => KeyType::Ecdsa,
             "Ed25519" => KeyType::Ed25519,
-            _ => KeyType::Rsa,
-        };
-    }
+            _ => KeyType::Ecdsa,
+        }
+    } else {
+        default_key_type
+    };
+
+    // PFX Password - use CLI arg or prompt in All mode
+    let pfx_password = if let Some(pwd) = cli.pfx_password {
+        pwd
+    } else if is_all {
+        prompt_optional(&t("enter_pfx_password")).unwrap_or_default()
+    } else {
+        String::new()
+    };
 
     CertOptions {
         cn,
@@ -136,7 +186,7 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
         organization,
         org_unit,
         key_type,
-        pfx_password: String::new(),
+        pfx_password,
     }
 }
 
