@@ -1,5 +1,7 @@
 # Support
 
+> 📖 **Languages:** [English](./SUPPORT.md) | [日本語](./japanese/SUPPORT_ja.md)
+
 Thank you for using SureSign! Here are the ways you can get help and support.
 
 ## Documentation

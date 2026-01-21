@@ -1,7 +1,8 @@
 # SureSign
 
+> 📖 **Languages:** [English](./README.md) | [日本語](./japanese/README.md)
+
 A pure Rust self-signed certificate generator with interactive and CLI modes.
-> 📖 **Languages:** [English](./Code_of_Conduct.md) | [日本語](./japanese/Code_of_Conduct_ja.md)
 
 ![License](https://img.shields.io/badge/license-BSD--2--Clause-blue)
 ![Rust](https://img.shields.io/badge/Made%20with-Rust-orange)

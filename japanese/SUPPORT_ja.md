@@ -1,5 +1,7 @@
 # サポート
 
+> 📖 **Languages:** [English](../SUPPORT.md) | [日本語](./SUPPORT_ja.md)
+
 SureSignをご利用いただき、ありがとうございます。ここはヘルプとサポートを受けるための方法です。
 
 ## ドキュメント

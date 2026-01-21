@@ -1,8 +1,12 @@
 # SureSign
 
+> 📖 **Languages:** [English](../README.md) | [日本語](./README.md)
+
 Pure Rust製の自己署名証明書発行ツール。対話モードとCLIモードの両方に対応。
+> 
 
 ![License](https://img.shields.io/badge/license-BSD--2--Clause-blue)
+![Rust](https://img.shields.io/badge/Made%20with-Rust-orange)
 
 ## 特徴
 

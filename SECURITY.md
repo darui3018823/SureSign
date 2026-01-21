@@ -1,5 +1,7 @@
 # Security Policy
 
+> 📖 **Languages:** [English](./SECURITY.md) | [日本語](./japanese/SECURITY_ja.md)
+
 ## Reporting a Vulnerability
 
 **Please do not open a public issue for security vulnerabilities.**

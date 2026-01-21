@@ -1,5 +1,7 @@
 # Contributing to SureSign
 
+> 📖 **Languages:** [English](./CONTRIBUTING.md) | [日本語](./japanese/CONTRIBUTING_ja.md)
+
 Thank you for your interest in contributing to SureSign! We welcome contributions from the community. This document provides guidelines and instructions for contributing to the project.
 
 ## Code of Conduct
