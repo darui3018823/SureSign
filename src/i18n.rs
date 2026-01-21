@@ -52,6 +52,12 @@ fn get_en(key: &str) -> String {
         "generating" => "Generating certificate...".to_string(),
         "success" => "Success!".to_string(),
         "cmdlist_header" => "Available Commands & Presets:".to_string(),
+        "enter_country" => "Country Name (2 letter code) [st]:".to_string(),
+        "enter_state" => "State or Province Name (full name):".to_string(),
+        "enter_city" => "Locality Name (eg, city):".to_string(),
+        "enter_org" => "Organization Name (eg, company):".to_string(),
+        "enter_org_unit" => "Organizational Unit Name (eg, section):".to_string(),
+        "select_key_type" => "Select Key Type:".to_string(),
         _ => key.to_string(),
     }
 }
@@ -68,6 +74,12 @@ fn get_ja(key: &str) -> String {
         "generating" => "証明書を生成中...".to_string(),
         "success" => "成功！".to_string(),
         "cmdlist_header" => "利用可能なコマンドとプリセット:".to_string(),
+        "enter_country" => "国名 (2文字コード) [JP]:".to_string(),
+        "enter_state" => "都道府県名:".to_string(),
+        "enter_city" => "市区町村名:".to_string(),
+        "enter_org" => "組織名 (会社名など):".to_string(),
+        "enter_org_unit" => "部署名:".to_string(),
+        "select_key_type" => "鍵の種類を選択:".to_string(),
         _ => key.to_string(),
     }
 }

@@ -1,13 +1,29 @@
 use anyhow::{Context, Result};
-use rcgen::{Certificate, CertificateParams, SanType};
+use rcgen::{Certificate, CertificateParams, SanType, KeyPair, DnType};
 use std::net::IpAddr;
 use std::str::FromStr;
 use time::{Duration, OffsetDateTime}; // rcgen uses time crate
 
+#[derive(Debug, Clone, Copy)]
+pub enum KeyType {
+    Rsa,
+    Ecdsa,
+    Ed25519,
+}
+
 pub struct CertOptions {
+    // Simple
     pub cn: String,
     pub sans: Vec<String>,
     pub validity_days: i64,
+    // Full
+    pub country: Option<String>,
+    pub state: Option<String>,
+    pub city: Option<String>,
+    pub organization: Option<String>,
+    pub org_unit: Option<String>,
+    // All
+    pub key_type: KeyType,
 }
 
 pub struct GeneratedCert {
@@ -20,7 +36,6 @@ pub fn generate_cert(opt: CertOptions) -> Result<GeneratedCert> {
     let mut params = CertificateParams::new(vec![opt.cn.clone()]);
     
     // Set validity
-    // rcgen uses time::OffsetDateTime
     let now = OffsetDateTime::now_utc();
     let end = now + Duration::days(opt.validity_days);
     params.not_before = now;
@@ -35,23 +50,41 @@ pub fn generate_cert(opt: CertOptions) -> Result<GeneratedCert> {
         }
     }
 
-    // Generate KeyPair and Certificate
+    // Set DN fields (Full Mode)
+    if let Some(c) = opt.country {
+        params.distinguished_name.push(DnType::CountryName, c);
+    }
+    if let Some(st) = opt.state {
+        params.distinguished_name.push(DnType::StateOrProvinceName, st);
+    }
+    if let Some(l) = opt.city {
+        params.distinguished_name.push(DnType::LocalityName, l);
+    }
+    if let Some(o) = opt.organization {
+        params.distinguished_name.push(DnType::OrganizationName, o);
+    }
+    if let Some(ou) = opt.org_unit {
+        params.distinguished_name.push(DnType::OrganizationalUnitName, ou);
+    }
+
+    // Set Key Algorithm (All Mode)
+    // rcgen 0.11 uses alg when generating KeyPair.
+    let key_pair = match opt.key_type {
+        KeyType::Rsa => KeyPair::generate(&rcgen::PKCS_RSA_SHA256)?,
+        KeyType::Ecdsa => KeyPair::generate(&rcgen::PKCS_ECDSA_P256_SHA256)?,
+        KeyType::Ed25519 => KeyPair::generate(&rcgen::PKCS_ED25519)?,
+    };
+    params.key_pair = Some(key_pair);
+
+    // Generate Certificate
     let cert = Certificate::from_params(params)?;
     let cert_pem = cert.serialize_pem()?;
-    // rcgen 0.11+ separates key generation if needed, but from_params generates a keypair internally unless provided.
-    // wait, from_params creates a Certificate which contains the keypair.
     let key_pem = cert.serialize_private_key_pem();
 
     // Generate PFX
-    // p12 crate requires DER cert and key
     let cert_der = cert.serialize_der()?;
-    // We need the private key in DER too.
     let key_der = cert.serialize_private_key_der();
 
-    // p12::PFX::new returns PFX struct in version 0.6.3
-    // We need to verify if it has .to_der()
-    // It seems commonly PFX::new(...) returns Option<Vec<u8>> in some versions or PFX struct in others.
-    // Based on error "expected Vec<u8>, found PFX", it returns PFX.
     let pfx = p12::PFX::new(
         &cert_der,
         &key_der,

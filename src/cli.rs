@@ -35,6 +35,14 @@ pub struct Cli {
     #[arg(long)]
     pub cmdlist: bool,
 
+    /// Full Mode: Ask for Country, State, City, Org, OrgUnit
+    #[arg(long)]
+    pub full: bool,
+
+    /// All Mode: Ask for KeyType and all other fields
+    #[arg(long)]
+    pub all: bool,
+
     // Hidden flag for testing i18n
     #[arg(long, hide = true)]
     pub lang: Option<String>,
