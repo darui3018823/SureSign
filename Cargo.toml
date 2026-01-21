@@ -1,0 +1,15 @@
+[package]
+name = "SureSign"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+rcgen = "0.11"
+p12 = "0.6"
+anyhow = "1.0"
+inquire = "0.6"
+sys-locale = "0.3"
+console = "0.15"
+time = "0.3"
+lazy_static = "1.4"
