@@ -1,0 +1,22 @@
+{
+    "welcome": "SureSignへようこそ - 自己署名証明書発行ツール",
+    "saved_to": "保存先:",
+    "error": "エラー:",
+    "interactive_mode": "対話モードを開始します...",
+    "enter_cn": "コモンネーム (CN) 例: myserver.local:",
+    "enter_san": "サブジェクト代替名 (SANs) - カンマ区切り (例: 192.168.1.1, dns.local):",
+    "enter_days": "有効期限 (日数):",
+    "generating": "証明書を生成中...",
+    "success": "成功！",
+    "cmdlist_header": "利用可能なコマンドとプリセット:",
+    "enter_country": "国名 (2文字コード):",
+    "enter_state": "都道府県名:",
+    "enter_city": "市区町村名:",
+    "enter_org": "組織名 (会社名など):",
+    "enter_org_unit": "部署名:",
+    "select_key_type": "鍵の種類を選択:",
+    "enter_pfx_password": "PFXパスワード (空でパスワードなし):",
+    "files_exist_warning": "警告: 以下のファイルが既に存在します:",
+    "overwrite_prompt": "上書きしますか? (y/N):",
+    "aborted": "中断しました。"
+}

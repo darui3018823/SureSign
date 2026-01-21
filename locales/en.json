@@ -1,0 +1,22 @@
+{
+  "welcome": "Welcome to SureSign - Self-Signed Certificate Generator",
+  "saved_to": "Certificate saved to:",
+  "error": "Error:",
+  "interactive_mode": "Entering interactive mode...",
+  "enter_cn": "Common Name (CN) e.g., myserver.local:",
+  "enter_san": "Subject Alternative Names (SANs) - comma separated (e.g., 192.168.1.1, dns.local):",
+  "enter_days": "Validity days:",
+  "generating": "Generating certificate...",
+  "success": "Success!",
+  "cmdlist_header": "Available Commands & Presets:",
+  "enter_country": "Country Name (2 letter code):",
+  "enter_state": "State or Province Name (full name):",
+  "enter_city": "Locality Name (eg, city):",
+  "enter_org": "Organization Name (eg, company):",
+  "enter_org_unit": "Organizational Unit Name (eg, section):",
+  "select_key_type": "Select Key Type:",
+  "enter_pfx_password": "PFX Password (leave empty for no password):",
+  "files_exist_warning": "Warning: The following files already exist:",
+  "overwrite_prompt": "Overwrite? (y/N):",
+  "aborted": "Aborted."
+}
