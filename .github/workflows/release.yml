@@ -18,24 +18,24 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: downloader
-            asset_name: downloader-linux-x86_64
+            artifact_name: SureSign
+            asset_name: SureSign-linux-x86_64
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            artifact_name: downloader
-            asset_name: downloader-linux-x86_64-musl
+            artifact_name: SureSign
+            asset_name: SureSign-linux-x86_64-musl
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: downloader.exe
-            asset_name: downloader-windows-x86_64.exe
+            artifact_name: SureSign.exe
+            asset_name: SureSign-windows-x86_64.exe
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: downloader
-            asset_name: downloader-macos-x86_64
+            artifact_name: SureSign
+            asset_name: SureSign-macos-x86_64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: downloader
-            asset_name: downloader-macos-aarch64
+            artifact_name: SureSign
+            asset_name: SureSign-macos-aarch64
 
     runs-on: ${{ matrix.os }}
 
