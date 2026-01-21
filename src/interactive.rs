@@ -1,5 +1,6 @@
 use crate::cert::{CertOptions, KeyType};
 use crate::cli::Cli;
+use crate::config::Config;
 use crate::i18n::t;
 use inquire::{CustomType, Select, Text};
 use std::process;
@@ -12,6 +13,49 @@ fn parse_key_type(s: &str) -> KeyType {
         "ed25519" => KeyType::Ed25519,
         _ => KeyType::Ecdsa,
     }
+}
+
+/// Resolve options with config file support (CLI takes precedence)
+pub fn resolve_options_with_config(cli: Cli, config: Option<Config>) -> CertOptions {
+    // Merge CLI with config - CLI always takes precedence
+    let merged_cn = cli.cn.or_else(|| config.as_ref().and_then(|c| c.cn.clone()));
+    let merged_sans = cli.sans.or_else(|| config.as_ref().and_then(|c| c.sans.clone()));
+    let merged_days = cli.days.or_else(|| config.as_ref().and_then(|c| c.days));
+    let merged_country = cli.country.or_else(|| config.as_ref().and_then(|c| c.country.clone()));
+    let merged_state = cli.state.or_else(|| config.as_ref().and_then(|c| c.state.clone()));
+    let merged_city = cli.city.or_else(|| config.as_ref().and_then(|c| c.city.clone()));
+    let merged_org = cli.org.or_else(|| config.as_ref().and_then(|c| c.org.clone()));
+    let merged_org_unit = cli.org_unit.or_else(|| config.as_ref().and_then(|c| c.org_unit.clone()));
+    let merged_key_type = cli.key_type.or_else(|| config.as_ref().and_then(|c| c.key_type.clone()));
+    let merged_pfx_password = cli.pfx_password.or_else(|| config.as_ref().and_then(|c| c.pfx_password.clone()));
+
+    // Create a new Cli struct with merged values
+    let merged_cli = Cli {
+        cn: merged_cn,
+        sans: merged_sans,
+        days: merged_days,
+        non_interactive: cli.non_interactive,
+        default_settings: cli.default_settings,
+        cmdlist: cli.cmdlist,
+        full: cli.full,
+        all: cli.all,
+        output: cli.output,
+        name: cli.name,
+        pfx_password: merged_pfx_password,
+        yes: cli.yes,
+        country: merged_country,
+        state: merged_state,
+        city: merged_city,
+        org: merged_org,
+        org_unit: merged_org_unit,
+        key_type: merged_key_type,
+        verbose: cli.verbose,
+        quiet: cli.quiet,
+        config: cli.config,
+        lang: cli.lang,
+    };
+
+    resolve_options(merged_cli)
 }
 
 pub fn resolve_options(cli: Cli) -> CertOptions {

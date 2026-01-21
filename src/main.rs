@@ -1,14 +1,16 @@
 mod cert;
 mod cli;
+mod config;
 mod i18n;
 mod interactive;
 
+use crate::config::Config;
 use crate::i18n::t;
 use anyhow::{Context, Result};
 use console::Style;
 use std::fs;
 use std::io::{self, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 fn main() -> Result<()> {
     let args = cli::parse();
@@ -18,11 +20,35 @@ fn main() -> Result<()> {
     let quiet = args.quiet;
     let yes = args.yes;
 
-    // Extract output settings before moving args to resolve_options
-    let output_dir = args.output.clone();
-    let file_name = args.name.clone().unwrap_or_else(|| "server".to_string());
+    // Load config file
+    let config = if let Some(ref config_path) = args.config {
+        Config::load(config_path).ok().flatten()
+    } else {
+        Config::load_default()
+    };
 
-    let opts = interactive::resolve_options(args);
+    // Merge config with CLI args (CLI takes precedence)
+    let output_dir: Option<PathBuf> = args
+        .output
+        .clone()
+        .or_else(|| config.as_ref().and_then(|c| c.output.as_ref().map(PathBuf::from)));
+
+    let file_name = args
+        .name
+        .clone()
+        .or_else(|| config.as_ref().and_then(|c| c.name.clone()))
+        .unwrap_or_else(|| "server".to_string());
+
+    // Log config file usage
+    if verbose {
+        if config.is_some() {
+            println!("  Config file: loaded");
+        } else {
+            println!("  Config file: none");
+        }
+    }
+
+    let opts = interactive::resolve_options_with_config(args, config);
 
     if !quiet {
         println!("{}", t("generating"));
@@ -57,10 +83,7 @@ fn main() -> Result<()> {
 
     // Check for existing files and prompt for overwrite
     let paths = [&key_path, &crt_path, &pem_path, &pfx_path];
-    let existing_files: Vec<_> = paths
-        .iter()
-        .filter(|p| p.exists())
-        .collect();
+    let existing_files: Vec<_> = paths.iter().filter(|p| p.exists()).collect();
 
     if !existing_files.is_empty() && !yes {
         println!(
