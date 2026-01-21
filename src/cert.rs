@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use rcgen::{Certificate, CertificateParams, DnType, KeyPair, SanType};
 use std::net::IpAddr;
 use std::str::FromStr;
@@ -46,7 +46,7 @@ pub fn generate_cert(opt: CertOptions) -> Result<GeneratedCert> {
         if let Ok(ip) = IpAddr::from_str(&san) {
             params.subject_alt_names.push(SanType::IpAddress(ip));
         } else {
-            params.subject_alt_names.push(SanType::DnsName(san.into()));
+            params.subject_alt_names.push(SanType::DnsName(san));
         }
     }
 

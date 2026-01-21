@@ -1,7 +1,7 @@
 use crate::cert::{CertOptions, KeyType};
 use crate::cli::Cli;
 use crate::i18n::t;
-use inquire::{Confirm, CustomType, Select, Text};
+use inquire::{CustomType, Select, Text};
 use std::process;
 
 pub fn resolve_options(cli: Cli) -> CertOptions {
