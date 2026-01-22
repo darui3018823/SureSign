@@ -163,7 +163,6 @@ fn load_translations(lang: Lang) -> HashMap<String, String> {
 }
 
 pub struct Text {
-    pub lang: Lang,
     translations: HashMap<String, String>,
 }
 
@@ -176,7 +175,7 @@ impl Text {
             Lang::En
         };
         let translations = load_translations(lang);
-        Self { lang, translations }
+        Self { translations }
     }
 
     pub fn get(&self, key: &str) -> String {
