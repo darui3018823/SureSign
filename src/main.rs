@@ -28,10 +28,11 @@ fn main() -> Result<()> {
     };
 
     // Merge config with CLI args (CLI takes precedence)
-    let output_dir: Option<PathBuf> = args
-        .output
-        .clone()
-        .or_else(|| config.as_ref().and_then(|c| c.output.as_ref().map(PathBuf::from)));
+    let output_dir: Option<PathBuf> = args.output.clone().or_else(|| {
+        config
+            .as_ref()
+            .and_then(|c| c.output.as_ref().map(PathBuf::from))
+    });
 
     let file_name = args
         .name
@@ -88,9 +89,7 @@ fn main() -> Result<()> {
     if !existing_files.is_empty() && !yes {
         println!(
             "{}",
-            Style::new()
-                .yellow()
-                .apply_to(t("files_exist_warning"))
+            Style::new().yellow().apply_to(t("files_exist_warning"))
         );
         for file in &existing_files {
             println!("  - {}", file.display());

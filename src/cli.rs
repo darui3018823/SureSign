@@ -45,7 +45,6 @@ pub struct Cli {
     pub all: bool,
 
     // === New V2.0 arguments ===
-
     /// Output directory for generated certificates
     #[arg(long, short = 'o')]
     pub output: Option<PathBuf>,

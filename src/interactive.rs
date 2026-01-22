@@ -18,16 +18,34 @@ fn parse_key_type(s: &str) -> KeyType {
 /// Resolve options with config file support (CLI takes precedence)
 pub fn resolve_options_with_config(cli: Cli, config: Option<Config>) -> CertOptions {
     // Merge CLI with config - CLI always takes precedence
-    let merged_cn = cli.cn.or_else(|| config.as_ref().and_then(|c| c.cn.clone()));
-    let merged_sans = cli.sans.or_else(|| config.as_ref().and_then(|c| c.sans.clone()));
+    let merged_cn = cli
+        .cn
+        .or_else(|| config.as_ref().and_then(|c| c.cn.clone()));
+    let merged_sans = cli
+        .sans
+        .or_else(|| config.as_ref().and_then(|c| c.sans.clone()));
     let merged_days = cli.days.or_else(|| config.as_ref().and_then(|c| c.days));
-    let merged_country = cli.country.or_else(|| config.as_ref().and_then(|c| c.country.clone()));
-    let merged_state = cli.state.or_else(|| config.as_ref().and_then(|c| c.state.clone()));
-    let merged_city = cli.city.or_else(|| config.as_ref().and_then(|c| c.city.clone()));
-    let merged_org = cli.org.or_else(|| config.as_ref().and_then(|c| c.org.clone()));
-    let merged_org_unit = cli.org_unit.or_else(|| config.as_ref().and_then(|c| c.org_unit.clone()));
-    let merged_key_type = cli.key_type.or_else(|| config.as_ref().and_then(|c| c.key_type.clone()));
-    let merged_pfx_password = cli.pfx_password.or_else(|| config.as_ref().and_then(|c| c.pfx_password.clone()));
+    let merged_country = cli
+        .country
+        .or_else(|| config.as_ref().and_then(|c| c.country.clone()));
+    let merged_state = cli
+        .state
+        .or_else(|| config.as_ref().and_then(|c| c.state.clone()));
+    let merged_city = cli
+        .city
+        .or_else(|| config.as_ref().and_then(|c| c.city.clone()));
+    let merged_org = cli
+        .org
+        .or_else(|| config.as_ref().and_then(|c| c.org.clone()));
+    let merged_org_unit = cli
+        .org_unit
+        .or_else(|| config.as_ref().and_then(|c| c.org_unit.clone()));
+    let merged_key_type = cli
+        .key_type
+        .or_else(|| config.as_ref().and_then(|c| c.key_type.clone()));
+    let merged_pfx_password = cli
+        .pfx_password
+        .or_else(|| config.as_ref().and_then(|c| c.pfx_password.clone()));
 
     // Create a new Cli struct with merged values
     let merged_cli = Cli {
@@ -187,7 +205,8 @@ pub fn resolve_options(cli: Cli) -> CertOptions {
     };
 
     let org_unit = if is_full {
-        cli.org_unit.or_else(|| prompt_optional(&t("enter_org_unit")))
+        cli.org_unit
+            .or_else(|| prompt_optional(&t("enter_org_unit")))
     } else {
         cli.org_unit
     };
