@@ -152,7 +152,7 @@ jobs:
     needs: release
     permissions:
       contents: write
-    uses: ./.github/workflows/checksums.yml@main
+    uses: ./.github/workflows/checksums.yml
     with:
       artifact-name: SureSign-windows-x86_64.exe
       tag: ${{ github.ref_name }}
