@@ -147,3 +147,13 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  checksums:
+    needs: release
+    permissions:
+      contents: write
+    uses: darui3018823/winget-server/.github/workflows/checksums.yml@master
+    with:
+      artifact-name: SureSign-windows-x86_64.exe
+      tag: ${{ github.ref_name }}
+      pattern: "SureSign.exe"
